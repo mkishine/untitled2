@@ -1,10 +1,10 @@
 angular.module("sportsStoreAdmin", ["ngRoute"])
     .config(function ($routeProvider) {
         $routeProvider.when("/login", {
-            templateUrl: "/views/adminLogin.html"
+            templateUrl: "views/adminLogin.html"
         });
         $routeProvider.when("/main", {
-            templateUrl: "/views/adminMain.html"
+            templateUrl: "views/adminMain.html"
         });
         $routeProvider.otherwise({
             redirectTo: "/login"
