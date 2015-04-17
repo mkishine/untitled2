@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AngularJS Demo</title>
+    <link href="../../bootstrap.css" rel="stylesheet"/>
+    <link href="../../bootstrap-theme.css" rel="stylesheet"/>
+    <script src="../../angular.js"></script>
+    <script>
+        var myApp = angular.module("exampleApp", []);
+        myApp.controller("dayCtrl", function ($scope) {
+            $scope.day = new Date();
+        });
+        myApp.controller("dayCtrl2", function ($scope) {
+            $scope.day = "Hello";
+        });
+        var myApp2 = angular.module("exampleApp2", []);
+        myApp2.controller("dayCtrl2", function ($scope) {
+            $scope.day = "Hello";
+        });
+    </script>
+</head>
+<body>
+<div ng-app="exampleApp">
+    <div class="panel" ng-controller="dayCtrl">
+        <h4>Today is {{day || "(unknown)"}}</h4>
+    </div>
+    <div class="panel" ng-controller="dayCtrl2">
+        <h4>Today is {{day || "(unknown)"}}</h4>
+    </div>
+</div>
+
+<div ng-app="exampleApp2">
+    <div class="panel" ng-controller="dayCtrl2">
+        <h4>Today is {{day || "(unknown)"}}</h4>
+    </div>
+</div>
+</body>
+</html>
