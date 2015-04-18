@@ -7,16 +7,22 @@
     <script src="../../angular.js"></script>
     <script>
         var myApp = angular.module("exampleApp", []);
+        var dateStr = "13 Apr 2015";
+        var date = new Date(dateStr);
         myApp.controller("dayCtrl", function ($scope) {
-            $scope.day = new Date().getDay();
+            $scope.dateStr = dateStr;
+            $scope.day = date.getDay();
         });
         myApp.controller("tomorrowCtrl", function ($scope) {
-            $scope.day = new Date().getDay() + 1;
+            $scope.dateStr = dateStr;
+            $scope.day = (date.getDay() + 1)%7;
         });
-        myApp.directive("highlight", function () {
+        myApp.directive("highlight", function ($filter) {
             return function (scope, element, attrs) {
-                if (scope.day == attrs["highlight"]) {
-                    element.css("color", "red");
+                var color = attrs["hcolor"] || "red";
+                var dayFilter = $filter("dayName");
+                if (dayFilter(scope.day) == attrs["highlight"]) {
+                    element.css("color", color);
                 }
             }
         });
@@ -35,10 +41,10 @@
         <h3>AngularJS App</h3>
     </div>
     <h4 ng-controller="dayCtrl" highlight="Monday">
-        Today is {{day || "(unknown)" | dayName}}
+        {{dateStr}} is {{day || "(unknown)" | dayName}}
     </h4>
-    <h4 ng-controller="tomorrowCtrl">
-        Tomorrow is {{day || "(unknown)" | dayName}}
+    <h4 ng-controller="tomorrowCtrl" highlight="Tuesday" hcolor="blue">
+        Day after {{dateStr}} is {{day || "(unknown)" | dayName}}
     </h4></div>
 </body>
 </html>
