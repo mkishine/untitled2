@@ -11,7 +11,7 @@ function MyCtrl($scope, limitToFilter) {
 angular.module('myApp', [])
     .directive('hcPie', function () {
         return {
-            restrict: 'C',
+            restrict: 'E',
             // see discussion of replace option at
             // http://stackoverflow.com/questions/22497706/angular-directive-replace-true
             // Also, replace option is depreciated
