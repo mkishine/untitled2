@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<!--
+ Borrowed from: http://stackoverflow.com/questions/15904739/rendering-highcharts-using-angular-js-directives
+                http://jsfiddle.net/csTzc
+-->
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>highcharts angular 101</title>
+    <script src="../jquery-1.9.1.js"></script>
+    <script src="../highcharts.js"></script>
+    <script src="../highcharts-more.js"></script>
+    <script src="../../../angular.js"></script>
+    <script src="script.js"></script>
+</head>
+<body>
+<div ng-app="myApp">
+    <div ng-controller="MyCtrl">
+        <hc-pie items="limitedIdeas"></hc-pie>
+        <hc-pie items="ideas"></hc-pie>
+    </div>
+</div>
+</body>
+</html>
