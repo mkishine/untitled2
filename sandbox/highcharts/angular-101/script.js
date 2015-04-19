@@ -14,7 +14,11 @@ angular.module('myApp', [])
             restrict: 'C',
             // see discussion of replace option at
             // http://stackoverflow.com/questions/22497706/angular-directive-replace-true
-            replace: true,
+            // Also, replace option is depreciated
+            // see: http://stackoverflow.com/questions/24194972/why-is-replace-deprecated-in-angularjs
+            // replace: true,
+
+
             // scope option is used to isolate scope
             // see docsIsolateScopeDirective example at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
@@ -25,17 +29,18 @@ angular.module('myApp', [])
             // see docsTabsExample at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             controller: function ($scope, $element, $attrs) {
-                console.log(2);
+                console.log("processing controller option");
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
             // use link option to manipulate DOM
             // see docsTimeDirective example at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             link: function (scope, element, attrs) {
-                console.log(3);
+                console.log("processing link option");
+                element.attr("id", attrs["items"]);
                 var chart = new Highcharts.Chart({
                     chart: {
-                        renderTo: 'container',
+                        renderTo: element.attr("id"),
                         plotBackgroundColor: null,
                         plotBorderWidth: null,
                         plotShadow: false
