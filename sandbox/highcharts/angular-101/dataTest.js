@@ -1,9 +1,8 @@
 'use strict';
 var ctrl = function ($scope, $http) {
-    $scope.hello = "world";
     var promise = $http.get("data.json");
     promise.success(function (data) {
-        $scope.hello = data;
+        $scope.data = data;
         function counter(key, what) {
             var count = {};
             data.forEach(function (element) {
