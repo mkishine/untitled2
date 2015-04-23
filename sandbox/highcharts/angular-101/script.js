@@ -80,7 +80,7 @@ angular.module('myApp', [])
                         text: 'Browser market shares at a specific website, 2010'
                     },
                     tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage}%</b>',
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
                         percentageDecimals: 1
                     },
                     plotOptions: {
@@ -91,9 +91,7 @@ angular.module('myApp', [])
                                 enabled: true,
                                 color: '#000000',
                                 connectorColor: '#000000',
-                                formatter: function () {
-                                    return '<b>' + this.point.name + '</b>: ' + this.percentage + ' %';
-                                }
+                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
                             }
                         }
                     },
