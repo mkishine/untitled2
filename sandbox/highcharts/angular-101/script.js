@@ -42,7 +42,7 @@ angular.module('myApp', [])
     })
     .directive('hcPie', function () {
         return {
-            restrict: 'E',
+            restrict: 'EC',
             // see discussion of replace option at
             // http://stackoverflow.com/questions/22497706/angular-directive-replace-true
             // Also, replace option is depreciated
@@ -69,6 +69,7 @@ angular.module('myApp', [])
             link: function (scope, element, attrs) {
                 console.log("processing link option");
                 element.attr("id", attrs["items"]);
+                var title = attrs["title"] || "";
                 var chart = new Highcharts.Chart({
                     chart: {
                         renderTo: element.attr("id"),
@@ -77,7 +78,7 @@ angular.module('myApp', [])
                         plotShadow: false
                     },
                     title: {
-                        text: 'Browser market shares at a specific website, 2010'
+                        text: title
                     },
                     tooltip: {
                         pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
@@ -110,7 +111,7 @@ angular.module('myApp', [])
     })
     .directive('hcScatter', function () {
         return {
-            restrict: 'E',
+            restrict: 'EC',
             // scope option is used to isolate scope
             // see docsIsolateScopeDirective example at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
