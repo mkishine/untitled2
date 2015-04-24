@@ -3,27 +3,34 @@
  Borrowed from: http://stackoverflow.com/questions/15904739/rendering-highcharts-using-angular-js-directives
                 http://jsfiddle.net/csTzc
 -->
-<html>
-<head lang="en">
-    <meta charset="UTF-8">
-    <title>highcharts angular 101</title>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>VARServerUsageMonitor</title>
+    <link href="../../../bootstrap.css" rel="stylesheet">
     <script src="../jquery-1.9.1.js"></script>
     <script src="../highcharts.js"></script>
     <script src="../highcharts-more.js"></script>
     <script src="../../../angular.js"></script>
     <script src="script.js"></script>
 </head>
-<body>
-<div ng-app="myApp">
-    <div ng-controller="MyCtrl">
-        <!--
-        TODO: undrestand why hange hc-pie from style to element changed the size of the chart
-        -->
-        <hc-scatter items="data"></hc-scatter>
-        <hc-pie items="userCounts"></hc-pie>
-        <hc-pie items="userTimes"></hc-pie>
-        <hc-pie items="reportCounts"></hc-pie>
-        <hc-pie items="reportTimes"></hc-pie>
+<body ng-app="myApp">
+<div class="container" ng-controller="MyCtrl">
+    <div class="hc-scatter" items="data"></div>
+    <div class="row">
+        <div class="col-lg-3">
+            <div class="hc-pie" items="userCounts" title="User Count"></div>
+        </div>
+        <div class="col-lg-3">
+            <div class="hc-pie" items="userTimes" title="User Times"></div>
+        </div>
+        <div class="col-lg-3">
+            <div class="hc-pie" items="reportCounts" title="Report Count"></div>
+        </div>
+        <div class="col-lg-3">
+            <div class="hc-pie" items="reportTimes"title="Report Times"></div>
+        </div>
     </div>
 </div>
 </body>
