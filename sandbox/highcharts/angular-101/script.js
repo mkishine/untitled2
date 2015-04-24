@@ -19,16 +19,19 @@ angular.module('myApp', [])
                 var p = [];
                 var max = undefined;
                 for (var k in h) {
-                    p.push([k, h[k]]);
+                    p.push({
+                        name:k,
+                        y:h[k]
+                    });
                     if (max === undefined)
                         max = h[k];
                     else
                         max = Math.max(max, h[k]);
                 }
                 p.sort(function (a, b) {
-                    var aa = a[1] == max ? a[1] : -a[1];
-                    var bb = b[1] == max ? b[1] : -b[1];
-                    return bb-aa;
+                    var aa = a.y == max ? a.y : -a.y;
+                    var bb = b.y == max ? b.y : -b.y;
+                    return bb - aa;
                 });
                 return p;
             }
@@ -70,6 +73,7 @@ angular.module('myApp', [])
                 console.log("processing link option");
                 element.attr("id", attrs["items"]);
                 var title = attrs["title"] || "";
+                var category = attrs["category"] || "";
                 var chart = new Highcharts.Chart({
                     chart: {
                         renderTo: element.attr("id"),
@@ -81,7 +85,7 @@ angular.module('myApp', [])
                         text: title
                     },
                     tooltip: {
-                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>',
+                        pointFormat: '<b>{point.percentage:.1f}%</b>',
                         percentageDecimals: 1
                     },
                     plotOptions: {
@@ -98,8 +102,15 @@ angular.module('myApp', [])
                     },
                     series: [{
                         type: 'pie',
-                        name: 'Browser share',
-                        data: scope.items
+                        data: scope.items,
+                        point: {
+                            events: {
+                                click: function() {
+                                    console.log(this.name);
+                                    console.log(category);
+                                }
+                            }
+                        }
                     }]
                 });
                 scope.$watch("items", function (newValue) {
