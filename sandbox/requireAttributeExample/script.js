@@ -10,13 +10,21 @@ angular.module('t2', [])
         return {
             restrict: 'C',
             controller: function($scope) {
-                $scope.listeners = [];
-                this.register = function(listener) {
-                    $scope.listeners.push(listener);
+                $scope.greetingListeners = [];
+                $scope.elementListeners = [];
+                this.registerElement = function(listener) {
+                    $scope.elementListeners.push(listener);
                 };
-                this.notify = function(label) {
-                    // console.log("x notified: "+label);
-                    $scope.listeners.forEach(function(value){
+                this.registerGreeting = function(listener) {
+                    $scope.greetingListeners.push(listener);
+                };
+                this.notifyElement = function(label) {
+                    $scope.elementListeners.forEach(function(value){
+                        value.scope.notify(value.scope, value.element, this);
+                    }, label);
+                };
+                this.notifyGreeting = function(label) {
+                    $scope.greetingListeners.forEach(function(value){
                         value.scope.notify(value.scope, value.element, this);
                     }, label);
                 };
@@ -29,7 +37,6 @@ angular.module('t2', [])
             restrict: 'C',
             controller: function($scope) {
                 $scope.notify = function(scope, element, label){
-                    // console.log("Greeting notified: "+label);
                     element.text("Greeting: "+scope.label + " ("+scope.label +" "+label+")");
                 };
             },
@@ -37,11 +44,11 @@ angular.module('t2', [])
                 label: '=',
             },
             link: function (scope, element, attrs, xCtrl) {
-                element.css({border: "5px solid", cursor: "pointer", margin: "5px"});
+                element.css({border: "5px solid red", cursor: "pointer", margin: "5px", padding: "5px"});
                 element.text("Greeting: "+scope.label);
-                xCtrl.register({scope: scope, element: element});
+                xCtrl.registerGreeting({scope: scope, element: element});
                 element[0].onclick = function(){
-                    console.log(scope.label + " clicked");
+                    xCtrl.notifyElement(scope.label);
                 };
             }
         };
@@ -50,15 +57,20 @@ angular.module('t2', [])
         return {
             require: '^x',
             restrict: 'C',
+            controller: function($scope) {
+                $scope.notify = function(scope, element, label){
+                    element.text("Element: "+scope.label + " ("+label +" "+scope.label+")");
+                };
+            },
             scope: {
                 label: '=',
             },
             link: function (scope, element, attrs, xCtrl) {
-                element.css({border: "5px solid", cursor: "pointer", margin: "5px"});
+                element.css({border: "5px solid blue", cursor: "pointer", margin: "5px", padding: "5px"});
                 element.text("Element: "+scope.label);
+                xCtrl.registerElement({scope: scope, element: element});
                 element[0].onclick = function(){
-                    // console.log(scope.label + " clicked");
-                    xCtrl.notify(scope.label);
+                    xCtrl.notifyGreeting(scope.label);
                 };
             }
         };
