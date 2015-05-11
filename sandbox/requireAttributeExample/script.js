@@ -1,3 +1,6 @@
+// see this post on sequence of compile/controller/link
+// http://filimanjaro.com/blog/2014/angular-directive-lifecycle-vs-link-compile-controller/
+
 angular.module('t2', [])
     .controller('ctrl', ['$scope', function($scope) {
         $scope.hello = "hello";
@@ -44,7 +47,10 @@ angular.module('t2', [])
                 label: '=',
             },
             link: function (scope, element, attrs, xCtrl) {
-                element.css({border: "5px solid red", cursor: "pointer", margin: "5px", padding: "5px"});
+                element.css({cursor: "pointer",
+                    backgroundColor:"lightgray",
+                    textAlign:"center",
+                    border: "20px solid white"});
                 element.text("Greeting: "+scope.label);
                 xCtrl.registerGreeting({scope: scope, element: element});
                 element[0].onclick = function(){
@@ -66,7 +72,10 @@ angular.module('t2', [])
                 label: '=',
             },
             link: function (scope, element, attrs, xCtrl) {
-                element.css({border: "5px solid blue", cursor: "pointer", margin: "5px", padding: "5px"});
+                element.css({cursor: "pointer",
+                    backgroundColor:"lightgreen",
+                    textAlign:"center",
+                    border: "20px solid white"});
                 element.text("Element: "+scope.label);
                 xCtrl.registerElement({scope: scope, element: element});
                 element[0].onclick = function(){

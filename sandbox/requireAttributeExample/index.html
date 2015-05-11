@@ -3,17 +3,22 @@
 <head lang="en">
     <meta charset="UTF-8">
     <title></title>
+    <link href="../../bootstrap.css" rel="stylesheet">
     <script src="../../angular.js"></script>
     <script src="script.js"></script>
 </head>
 <body ng-app="t2">
 <div ng-controller="ctrl">
     <div class="x">
-        <div class="greeting-button" label="hello"></div>
-        <div class="greeting-button" label="hi"></div>
-        <div class="element-button" label="earth"></div>
-        <div class="element-button" label="fire"></div>
-        <div class="element-button" label="water"></div>
+        <div class="row">
+            <div class="greeting-button col-6" label="hello"></div>
+            <div class="greeting-button col-6" label="hi"></div>
+        </div>
+        <div class="row">
+            <div class="element-button col-4" label="earth"></div>
+            <div class="element-button col-4" label="fire"></div>
+            <div class="element-button col-4" label="water"></div>
+        </div>
     </div>
 </div>
 </body>
