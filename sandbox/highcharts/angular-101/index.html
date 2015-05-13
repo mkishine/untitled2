@@ -16,8 +16,10 @@
     <script src="script.js"></script>
 </head>
 <body ng-app="myApp">
-<div class="container" ng-controller="MyCtrl">
-    <div class="hc-scatter" items="data"></div>
+<div class="container hc-coordinator" ng-controller="MyCtrl">
+    <div class="row">
+        <div class="hc-scatter" items="data"></div>
+    </div>
     <div class="row">
         <div class="col-lg-3">
             <div class="hc-pie" items="userCounts" title="User Count" category="user"></div>
@@ -29,7 +31,7 @@
             <div class="hc-pie" items="reportCounts" title="Report Count" category="report"></div>
         </div>
         <div class="col-lg-3">
-            <div class="hc-pie" items="reportTimes"title="Report Times" category="report"></div>
+            <div class="hc-pie" items="reportTimes" title="Report Times" category="report"></div>
         </div>
     </div>
 </div>
