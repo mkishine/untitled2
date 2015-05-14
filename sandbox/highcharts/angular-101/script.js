@@ -3,7 +3,7 @@ angular.module('myApp', [])
         var promise = $http.get("data.json");
         promise.success(function (data) {
             // display first 100 points
-            data.splice(-900,900);
+            // data.splice(-900,900);
             $scope.data = data;
             function counter(key, what) {
                 var count = {};
@@ -150,14 +150,18 @@ angular.module('myApp', [])
             controller: function ($scope, $element, $attrs) {
                 $scope.notify = function(name, category, color){
                     console.log("scatter notify: "+name+" "+category+" "+color);
-                    $scope.chart.series[0].data.forEach(function (p) {
-                        var pointColor = p[category] == name ? color : 'gray';
-                        p.update({
-                            color: pointColor,
-                        }, false, false)
-                    });
-                    $scope.chart.redraw();
-
+                    $scope.chart.showLoading(
+                        "Highliting "+category + " "+name);
+                    window.setTimeout(function(){
+                        $scope.chart.series[0].data.forEach(function (p) {
+                            var pointColor = p[category] == name ? color : 'gray';
+                            p.update({
+                                color: pointColor,
+                            }, false, false)
+                        });
+                        $scope.chart.redraw();
+                        $scope.chart.hideLoading();
+                    }, 0);
                 };
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
@@ -173,6 +177,12 @@ angular.module('myApp', [])
                             renderTo: element.attr("id"),
                             type: 'scatter',
                             zoomType: 'x'
+                        },
+                        plotOptions: {
+                            scatter: {
+                                animation: false,
+                                turboThreshold: 0
+                            }
                         },
                         tooltip: {
                             crosshairs: [true, true],
