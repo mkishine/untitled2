@@ -26,6 +26,7 @@ $(function () {
 
                     setTimeout(function () {
                         label.fadeOut();
+                        label.destroy();
                     }, 1000);
                 }
             },
