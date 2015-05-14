@@ -176,7 +176,16 @@ angular.module('myApp', [])
                         chart: {
                             renderTo: element.attr("id"),
                             type: 'scatter',
-                            zoomType: 'x'
+                            zoomType: 'x',
+                            events: {
+                                selection: function (event) {
+                                    if (event.xAxis) {
+                                        console.log("zoomed: " + event.xAxis[0].min + " " + event.xAxis[0].max);
+                                    } else {
+                                        console.log('Selection reset');
+                                    }
+                                }
+                            }
                         },
                         plotOptions: {
                             scatter: {
