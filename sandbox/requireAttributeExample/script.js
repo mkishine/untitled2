@@ -12,6 +12,7 @@ angular.module('t2', [])
     .directive('x', function() {
         return {
             restrict: 'C',
+            transclude: true,
             controller: function($scope) {
                 $scope.greetingListeners = [];
                 $scope.elementListeners = [];
