@@ -5,9 +5,13 @@ angular.module('myApp', [])
             // display first 100 points
             // data.splice(-900,900);
             $scope.data = data;
-            function counter(key, what) {
+            function counter(key, what, xMin, xMax) {
                 var count = {};
                 data.forEach(function (element) {
+                    if ( xMin && element.x < xMin)
+                        return;
+                    if ( xMax && element.x > xMax)
+                        return;
                     var x = what ? element[what] : 1;
                     if (count[element[key]] === undefined)
                         count[element[key]] = x;
@@ -37,13 +41,16 @@ angular.module('myApp', [])
                 });
                 return p;
             }
+            function collectPieData(xMin, xMax) {
+                $scope.userCounts = h2p(counter("user", undefined, xMin, xMax));
+                $scope.reportCounts = h2p(counter("report", undefined, xMin, xMax));
+                $scope.userTimes = h2p(counter("user", "req_time", xMin, xMax));
+                $scope.reportTimes = h2p(counter("report", "req_time", xMin, xMax));
+            }
+            collectPieData(undefined, undefined);
 
-            $scope.userCounts = h2p(counter("user"));
-            $scope.reportCounts = h2p(counter("report"));
-            $scope.userTimes = h2p(counter("user", "req_time"));
-            $scope.reportTimes = h2p(counter("report", "req_time"));
             $scope.scatterZoomed = function(xMin, xMax){
-                console.log("MyCtrl.scatterZoomed: "+xMin+" "+xMax);
+                collectPieData(xMin, xMax);
             };
         });
     })
@@ -53,14 +60,23 @@ angular.module('myApp', [])
             transclude: true,
             controller: function($scope) {
                 $scope.scatterPlot = {};
+                $scope.pieCharts = {};
                 this.registerScatterPlot = function(scatterPlot) {
                     $scope.scatterPlot = scatterPlot;
                 };
+                this.registerPieChart = function(id, pieChart) {
+                    $scope.pieCharts[id] = pieChart;
+                };
                 this.pieClicked = function(name, category, color) {
+                    //TODO: no need for scope key
                     $scope.scatterPlot.scope.notify(name, category, color);
                 };
                 this.scatterZoomed = function(xMin, xMax){
                     $scope.scatterZoomed(xMin, xMax);
+                    for (var id in $scope.pieCharts) {
+                        var data = $scope[id];
+                        $scope.pieCharts[id].setData(data);
+                    }
                 };
             }
         };
@@ -86,16 +102,20 @@ angular.module('myApp', [])
             // see docsTabsExample at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             controller: function ($scope, $element, $attrs) {
+                $scope.setData = function(data){
+                    this.chart.series[0].setData(data, true);
+                }
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
             // use link option to manipulate DOM
             // see docsTimeDirective example at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             link: function (scope, element, attrs, coordinator) {
-                element.attr("id", attrs["items"]);
+                scope.id = attrs["items"];
+                element.attr("id", scope.id);
                 var title = attrs["title"] || "";
                 var category = attrs["category"] || "";
-                var chart = new Highcharts.Chart({
+                scope.chart = new Highcharts.Chart({
                     chart: {
                         renderTo: element.attr("id"),
                         plotBackgroundColor: null,
@@ -133,8 +153,9 @@ angular.module('myApp', [])
                         }
                     }]
                 });
+                coordinator.registerPieChart(scope.id, scope);
                 scope.$watch("items", function (newValue) {
-                    chart.series[0].setData(newValue, true);
+                    scope.chart.series[0].setData(newValue, true);
                 }, true);
 
             }
@@ -155,7 +176,6 @@ angular.module('myApp', [])
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             controller: function ($scope, $element, $attrs) {
                 $scope.notify = function(name, category, color){
-                    console.log("scatter notify: "+name+" "+category+" "+color);
                     $scope.chart.showLoading(
                         "Highliting "+category + " "+name);
                     window.setTimeout(function(){
@@ -176,6 +196,7 @@ angular.module('myApp', [])
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             link: function (scope, element, attrs, coordinator) {
                 element.attr("id", attrs["items"]);
+                //TODO: no need for scope and element keys
                 coordinator.registerScatterPlot({scope: scope, element: element});
                 scope.chart = new Highcharts.Chart(
                     {
