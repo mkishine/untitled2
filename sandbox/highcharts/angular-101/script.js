@@ -1,3 +1,4 @@
+"use strict";
 angular.module('myApp', [])
     .controller("MyCtrl", function ($scope, $http) {
         var promise = $http.get("data.json");
@@ -8,9 +9,9 @@ angular.module('myApp', [])
             function counter(key, what, xMin, xMax) {
                 var count = {};
                 data.forEach(function (element) {
-                    if ( xMin && element.x < xMin)
+                    if (xMin && element.x < xMin)
                         return;
-                    if ( xMax && element.x > xMax)
+                    if (xMax && element.x > xMax)
                         return;
                     var x = what ? element[what] : 1;
                     if (count[element[key]] === undefined)
@@ -23,55 +24,114 @@ angular.module('myApp', [])
 
             function h2p(h) {
                 var p = [];
-                var max = undefined;
                 for (var k in h) {
                     p.push({
-                        name:k,
-                        y:h[k]
+                        name: k,
+                        y: h[k]
                     });
-                    if (max === undefined)
-                        max = h[k];
-                    else
-                        max = Math.max(max, h[k]);
                 }
                 p.sort(function (a, b) {
-                    var aa = a.y == max ? a.y : -a.y;
-                    var bb = b.y == max ? b.y : -b.y;
-                    return bb - aa;
+                    return a.y - b.y;
                 });
+                p.unshift(p.pop());
                 return p;
             }
+
+            function buildHueMap(counts, times) {
+                var maxSlices = 5;
+                var xx = [];
+                xx.pushNew = function (v) {
+                    if (this.indexOf(v) == -1) {
+                        this.push(v);
+                    }
+                }
+                xx.pushNew(counts[0].name);
+                xx.pushNew(times[0].name);
+                var len = Math.min(maxSlices, counts.length);
+                for (var i = 1; i < len; ++i) {
+                    xx.pushNew(counts[counts.length - i].name);
+                    xx.pushNew(times[times.length - i].name);
+                }
+                // console.log(xx);
+                var hueMap = {};
+                xx.forEach(function (elem, idx, arr) {
+                    hueMap[elem] = idx / arr.length * 360;
+                });
+                return hueMap;
+            }
+
+            function compact(pie, hueMap) {
+                var newPie = pie.filter(function (p) {
+                    return p.name in hueMap
+                });
+                newPie.forEach(function (p) {
+                    p.color = "hsl(" + hueMap[p.name] + ",100%,50%)";
+                    p.hue = hueMap[p.name];
+                });
+                if (newPie.length == pie.length)
+                    return newPie;
+                var otherVlue = pie.reduce(function reducer(sum, p) {
+                    if (p.name in hueMap) {
+                        return sum;
+                    } else {
+                        return sum + p.y;
+                    }
+                }, 0)
+                newPie.push({name: "Other", y: otherVlue, color: "grey"});
+                newPie.sort(function (a, b) {
+                    return a.y - b.y;
+                });
+                newPie.unshift(newPie.pop());
+                return newPie;
+            }
+
             function collectPieData(xMin, xMax) {
                 $scope.userCounts = h2p(counter("user", undefined, xMin, xMax));
                 $scope.reportCounts = h2p(counter("report", undefined, xMin, xMax));
                 $scope.userTimes = h2p(counter("user", "req_time", xMin, xMax));
                 $scope.reportTimes = h2p(counter("report", "req_time", xMin, xMax));
-            }
-            collectPieData(undefined, undefined);
 
-            $scope.scatterZoomed = function(xMin, xMax){
+                var userHueMap = $scope.userHueMap;
+                if (userHueMap == undefined || !$scope.pieSliceSelected)
+                    userHueMap = $scope.userHueMap = buildHueMap($scope.userCounts, $scope.userTimes);
+                $scope.userCounts = compact($scope.userCounts, userHueMap);
+                $scope.userTimes = compact($scope.userTimes, userHueMap);
+                var reportHueMap = $scope.reportHueMap;
+                if (reportHueMap == undefined || !$scope.pieSliceSelected)
+                    reportHueMap = $scope.reportHueMap = buildHueMap($scope.reportCounts, $scope.reportTimes);
+                $scope.reportCounts = compact($scope.reportCounts, reportHueMap);
+                $scope.reportTimes = compact($scope.reportTimes, reportHueMap);
+            }
+
+            collectPieData(undefined, undefined);
+            $scope.pieSliceSelected = false;
+            $scope.scatterZoomed = function (xMin, xMax) {
                 collectPieData(xMin, xMax);
+            };
+            $scope.pieClicked = function (name, category, hue) {
+                $scope.pieSliceSelected = name != undefined;
             };
         });
     })
-    .directive('hcCoordinator', function() {
+    .directive('hcCoordinator', function () {
         return {
             restrict: 'C',
             transclude: true,
-            controller: function($scope) {
+            controller: function ($scope) {
                 $scope.scatterPlot = {};
                 $scope.pieCharts = {};
-                this.registerScatterPlot = function(scatterPlot) {
+                this.registerScatterPlot = function (scatterPlot) {
                     $scope.scatterPlot = scatterPlot;
                 };
-                this.registerPieChart = function(id, pieChart) {
+                this.registerPieChart = function (id, pieChart) {
                     $scope.pieCharts[id] = pieChart;
                 };
-                this.pieClicked = function(name, category, color) {
+                this.pieClicked = function (name, category, hue) {
+                    $scope.pieClicked(name, category, hue);
                     //TODO: no need for scope key
-                    $scope.scatterPlot.scope.notify(name, category, color);
+                    $scope.scatterPlot.scope.notify(name, category, hue);
                 };
-                this.scatterZoomed = function(xMin, xMax){
+                this.scatterZoomed = function (xMin, xMax) {
                     $scope.scatterZoomed(xMin, xMax);
                     for (var id in $scope.pieCharts) {
                         var data = $scope[id];
@@ -102,7 +162,7 @@ angular.module('myApp', [])
             // see docsTabsExample at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             controller: function ($scope, $element, $attrs) {
-                $scope.setData = function(data){
+                $scope.setData = function (data) {
                     this.chart.series[0].setData(data, true);
                 }
             },
@@ -116,6 +176,9 @@ angular.module('myApp', [])
                 var title = attrs["title"] || "";
                 var category = attrs["category"] || "";
                 scope.chart = new Highcharts.Chart({
+                    credits: {
+                        enabled: false
+                    },
                     chart: {
                         renderTo: element.attr("id"),
                         plotBackgroundColor: null,
@@ -123,7 +186,8 @@ angular.module('myApp', [])
                         plotShadow: false
                     },
                     title: {
-                        text: title
+                        text: title,
+                        style: {fontSize: "14px"},
                     },
                     tooltip: {
                         pointFormat: '<b>{point.percentage:.1f}%</b>',
@@ -134,10 +198,10 @@ angular.module('myApp', [])
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                                enabled: true,
-                                color: '#000000',
+                            //    enabled: true,
+                            //    color: '#000000',
                                 connectorColor: '#000000',
-                                format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            //    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
                             }
                         }
                     },
@@ -146,16 +210,19 @@ angular.module('myApp', [])
                         data: scope.items,
                         point: {
                             events: {
-                                click: function() {
-                                    coordinator.pieClicked(this.name, category, this.color);
+                                click: function () {
+                                    if (this.name == "Other")
+                                        return false;
+                                    var name = this.state == "select" ? undefined : this.name;
+                                    coordinator.pieClicked(name, category, this.hue);
                                 }
                             }
                         }
                     }]
                 });
                 coordinator.registerPieChart(scope.id, scope);
-                scope.$watch("items", function (newValue) {
-                    scope.chart.series[0].setData(newValue, true);
+                scope.$watch("items", function (data) {
+                    scope.chart.series[0].setData(data, true);
                 }, true);
 
             }
@@ -175,18 +242,23 @@ angular.module('myApp', [])
             // see docsTabsExample at
             // https://code.angularjs.org/1.2.27/docs/guide/directive
             controller: function ($scope, $element, $attrs) {
-                $scope.notify = function(name, category, color){
-                    $scope.chart.showLoading(
-                        "Highliting "+category + " "+name);
-                    window.setTimeout(function(){
+                $scope.notify = function (name, category, hue) {
+                    var highlighting = name ? "Highliting " + category + " " + name : "Removing highlights";
+                    $scope.chart.showLoading(highlighting);
+                    window.setTimeout(function () {
                         $scope.chart.series[0].data.forEach(function (p) {
-                            var pointColor = p[category] == name ? color : 'gray';
+                            var saturation = p[category] == name ? '100%' : '0%';
+                            var lightness = p.req_time < .5 ? "85%" : (p.req_time > 1.5 ? "35%" : "50%");
+                            var pointColor = 'hsl(' + hue + "," + saturation + "," + lightness + ")";
                             p.update({
-                                color: pointColor,
+                                color: pointColor
                             }, false, false)
                         });
                         $scope.chart.redraw();
                         $scope.chart.hideLoading();
+                        var selection = name ? category + " " + name : "none";
+                        var subtitle = {text: "Selection: " + selection};
+                        $scope.chart.setTitle(undefined, subtitle);
                     }, 0);
                 };
             },
@@ -200,6 +272,15 @@ angular.module('myApp', [])
                 coordinator.registerScatterPlot({scope: scope, element: element});
                 scope.chart = new Highcharts.Chart(
                     {
+                        credits: {
+                            enabled: false
+                        },
+                        title : {
+                            text : "Title"
+                        },
+                        subtitle : {
+                            text : "Selection: none"
+                        },
                         chart: {
                             renderTo: element.attr("id"),
                             type: 'scatter',
@@ -212,10 +293,23 @@ angular.module('myApp', [])
                                 }
                             }
                         },
+                        legend: {
+                            enabled: false
+                        },
                         plotOptions: {
                             scatter: {
                                 animation: false,
                                 turboThreshold: 0
+                            },
+                            series: {
+                                marker: {
+                                    states: {
+                                        hover: {
+                                            fillColor: function () {
+                                            } //color marker the same as point
+                                        }
+                                    }
+                                },
                             }
                         },
                         tooltip: {
@@ -230,8 +324,17 @@ angular.module('myApp', [])
                         }]
                     }
                 );
-                scope.$watch("items", function (newValue) {
-                    scope.chart.series[0].setData(newValue, true);
+                scope.$watch("items", function (data) {
+                    if (data === undefined)
+                        return;
+                    var seriesData = scope.chart.series[0].data;
+                    if (seriesData.length != 0)
+                        return;
+                    data.forEach(function (p) {
+                        var l = p.req_time < .5 ? "85%" : (p.req_time > 1.5 ? "35%" : "50%");
+                        p.color = "hsl(0,0%," + l + ")";
+                    });
+                    scope.chart.series[0].setData(data, true);
                 }, true);
             }
         }
