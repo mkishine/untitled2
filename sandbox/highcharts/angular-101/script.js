@@ -128,8 +128,7 @@ angular.module('myApp', [])
                 };
                 this.pieClicked = function (name, category, hue) {
                     $scope.pieClicked(name, category, hue);
-                    //TODO: no need for scope key
-                    $scope.scatterPlot.scope.notify(name, category, hue);
+                    $scope.scatterPlot.notify(name, category, hue);
                 };
                 this.scatterZoomed = function (xMin, xMax) {
                     $scope.scatterZoomed(xMin, xMax);
@@ -145,31 +144,15 @@ angular.module('myApp', [])
         return {
             require: '^hcCoordinator',
             restrict: 'EC',
-            // see discussion of replace option at
-            // http://stackoverflow.com/questions/22497706/angular-directive-replace-true
-            // Also, replace option is depreciated
-            // see: http://stackoverflow.com/questions/24194972/why-is-replace-deprecated-in-angularjs
-            // replace: true,
-
-
-            // scope option is used to isolate scope
-            // see docsIsolateScopeDirective example at
-            // https://code.angularjs.org/1.2.27/docs/guide/directive
             scope: {
                 items: '='
             },
-            // controller option allows us create directives that communicate
-            // see docsTabsExample at
-            // https://code.angularjs.org/1.2.27/docs/guide/directive
             controller: function ($scope, $element, $attrs) {
                 $scope.setData = function (data) {
                     this.chart.series[0].setData(data, true);
                 }
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
-            // use link option to manipulate DOM
-            // see docsTimeDirective example at
-            // https://code.angularjs.org/1.2.27/docs/guide/directive
             link: function (scope, element, attrs, coordinator) {
                 scope.id = attrs["items"];
                 element.attr("id", scope.id);
@@ -198,10 +181,9 @@ angular.module('myApp', [])
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
-                            //    enabled: true,
-                            //    color: '#000000',
+                                // prevent mismatch between slice color and connector color when
+                                // slice color changes
                                 connectorColor: '#000000',
-                            //    format: '<b>{point.name}</b>: {point.percentage:.1f} %',
                             }
                         }
                     },
@@ -232,15 +214,9 @@ angular.module('myApp', [])
         return {
             require: '^hcCoordinator',
             restrict: 'EC',
-            // scope option is used to isolate scope
-            // see docsIsolateScopeDirective example at
-            // https://code.angularjs.org/1.2.27/docs/guide/directive
             scope: {
                 items: '='
             },
-            // controller option allows us create directives that communicate
-            // see docsTabsExample at
-            // https://code.angularjs.org/1.2.27/docs/guide/directive
             controller: function ($scope, $element, $attrs) {
                 $scope.notify = function (name, category, hue) {
                     var highlighting = name ? "Highliting " + category + " " + name : "Removing highlights";
@@ -263,13 +239,9 @@ angular.module('myApp', [])
                 };
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
-            // use link option to manipulate DOM
-            // see docsTimeDirective example at
-            // https://code.angularjs.org/1.2.27/docs/guide/directive
             link: function (scope, element, attrs, coordinator) {
                 element.attr("id", attrs["items"]);
-                //TODO: no need for scope and element keys
-                coordinator.registerScatterPlot({scope: scope, element: element});
+                coordinator.registerScatterPlot(scope);
                 scope.chart = new Highcharts.Chart(
                     {
                         credits: {
@@ -305,8 +277,8 @@ angular.module('myApp', [])
                                 marker: {
                                     states: {
                                         hover: {
-                                            fillColor: function () {
-                                            } //color marker the same as point
+                                            // this will force color of hoverted marker match color of the point
+                                            fillColor: function () {}
                                         }
                                     }
                                 },
