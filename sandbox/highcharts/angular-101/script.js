@@ -129,6 +129,10 @@ angular.module('myApp', [])
                 this.pieClicked = function (name, category, hue) {
                     $scope.pieClicked(name, category, hue);
                     $scope.scatterPlot.notify(name, category, hue);
+                    for (var id in $scope.pieCharts) {
+                        var pie = $scope.pieCharts[id];
+                        pie.otherPieClickedNotify(name, category);
+                    }
                 };
                 this.scatterZoomed = function (xMin, xMax) {
                     $scope.scatterZoomed(xMin, xMax);
@@ -150,14 +154,21 @@ angular.module('myApp', [])
             controller: function ($scope, $element, $attrs) {
                 $scope.setData = function (data) {
                     this.chart.series[0].setData(data, true);
-                }
+                };
+                $scope.otherPieClickedNotify = function (name, category) {
+                    var that = this;
+                    this.chart.series[0].data.forEach(function (p) {
+                        var selected = category == that.category && name == p.name;
+                        p.slice(selected);
+                    });
+                };
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
             link: function (scope, element, attrs, coordinator) {
                 scope.id = attrs["items"];
                 element.attr("id", scope.id);
                 var title = attrs["title"] || "";
-                var category = attrs["category"] || "";
+                scope.category = attrs["category"] || "";
                 scope.chart = new Highcharts.Chart({
                     credits: {
                         enabled: false
@@ -192,11 +203,12 @@ angular.module('myApp', [])
                         data: scope.items,
                         point: {
                             events: {
+                                // see http://jsfiddle.net/3zy8p/13/ for an example of multiple selection
                                 click: function () {
                                     if (this.name == "Other")
                                         return false;
                                     var name = this.state == "select" ? undefined : this.name;
-                                    coordinator.pieClicked(name, category, this.hue);
+                                    coordinator.pieClicked(name, scope.category, this.hue);
                                 }
                             }
                         }
