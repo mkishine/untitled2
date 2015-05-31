@@ -38,7 +38,7 @@ angular.module('myApp', [])
             }
 
             function buildHueMap(counts, times) {
-                var maxSlices = 5;
+                var MAX_SLICES = 5;
                 var xx = [];
                 xx.pushNew = function (v) {
                     if (this.indexOf(v) == -1) {
@@ -47,7 +47,7 @@ angular.module('myApp', [])
                 }
                 xx.pushNew(counts[0].name);
                 xx.pushNew(times[0].name);
-                var len = Math.min(maxSlices, counts.length);
+                var len = Math.min(MAX_SLICES, counts.length);
                 for (var i = 1; i < len; ++i) {
                     xx.pushNew(counts[counts.length - i].name);
                     xx.pushNew(times[times.length - i].name);
