@@ -120,6 +120,7 @@ angular.module('myApp', [])
             controller: function ($scope) {
                 $scope.scatterPlot = {};
                 $scope.pieCharts = {};
+                $scope.selectedSlice = {name: undefined, category: undefined};
                 this.registerScatterPlot = function (scatterPlot) {
                     $scope.scatterPlot = scatterPlot;
                 };
@@ -129,16 +130,19 @@ angular.module('myApp', [])
                 this.pieClicked = function (name, category, hue) {
                     $scope.pieClicked(name, category, hue);
                     $scope.scatterPlot.notify(name, category, hue);
+                    $scope.selectedSlice = {name: name, category: category};
                     for (var id in $scope.pieCharts) {
                         var pie = $scope.pieCharts[id];
-                        pie.otherPieClickedNotify(name, category);
+                        pie.updateSelection(name, category);
                     }
                 };
                 this.scatterZoomed = function (xMin, xMax) {
                     $scope.scatterZoomed(xMin, xMax);
                     for (var id in $scope.pieCharts) {
                         var data = $scope[id];
-                        $scope.pieCharts[id].setData(data);
+                        var pie = $scope.pieCharts[id];
+                        pie.setData(data);
+                        pie.updateSelection($scope.selectedSlice.name, $scope.selectedSlice.category);
                     }
                 };
             }
@@ -155,7 +159,7 @@ angular.module('myApp', [])
                 $scope.setData = function (data) {
                     this.chart.series[0].setData(data, true);
                 };
-                $scope.otherPieClickedNotify = function (name, category) {
+                $scope.updateSelection = function (name, category) {
                     var that = this;
                     this.chart.series[0].data.forEach(function (p) {
                         var selected = category == that.category && name == p.name;
