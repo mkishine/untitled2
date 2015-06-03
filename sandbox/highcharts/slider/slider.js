@@ -14,13 +14,13 @@ app.controller('DemoController',
             max: 80
         };
 
-        $scope.execTimes = [
-            {name: "low", y: 0, color: "hsl(0,0%,85%)"},
-            {name: "medium", y: 0, color: "hsl(0,0%,50%)"},
-            {name: "high", y: 0, color: "hsl(0,0%,35%)"}
-        ];
+
         function countThem() {
-            var et = $scope.execTimes;
+            var et = [
+                {name: "low", y: 0, color: "hsl(0,0%,85%)"},
+                {name: "medium", y: 0, color: "hsl(0,0%,50%)"},
+                {name: "high", y: 0, color: "hsl(0,0%,35%)"}
+            ];
             et.forEach(function(p){p.y=0});
             $scope.data.forEach(function(p){
                 if ( p <= $scope.demo1.min )
@@ -30,6 +30,7 @@ app.controller('DemoController',
                 else
                     ++et[2].y;
             });
+            $scope.execTimes = et.filter(function(p){ return p.y != 0 });;
         }
         countThem();
         $scope.$watch("demo1.min", function(newValue, oldValue) {
@@ -40,7 +41,7 @@ app.controller('DemoController',
             countThem();
         });
     })
-    .directive('hcPie', function () {
+    .directive('hcExecTimesPie', function () {
         return {
             restrict: 'EC',
             scope: {
