@@ -40,21 +40,8 @@ app.controller('DemoController',
             countThem();
         });
     })
-    .directive('hcCoordinator', function () {
-        return {
-            restrict: 'C',
-            transclude: true,
-            controller: function ($scope) {
-                $scope.pieCharts = {};
-                this.registerPieChart = function (id, pieChart) {
-                    $scope.pieCharts[id] = pieChart;
-                };
-            }
-        };
-    })
     .directive('hcPie', function () {
         return {
-            require: '^hcCoordinator',
             restrict: 'EC',
             scope: {
                 items: '='
@@ -65,7 +52,7 @@ app.controller('DemoController',
                 };
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
-            link: function (scope, element, attrs, coordinator) {
+            link: function (scope, element, attrs) {
                 scope.id = attrs["items"];
                 element.attr("id", scope.id);
                 var title = attrs["title"] || "";
@@ -102,7 +89,6 @@ app.controller('DemoController',
                         data: scope.items,
                     }]
                 });
-                coordinator.registerPieChart(scope.id, scope);
                 scope.$watch("items", function (data) {
                     scope.chart.series[0].setData(data, true);
                 }, true);
