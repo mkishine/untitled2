@@ -47,11 +47,6 @@ app.controller('DemoController',
             scope: {
                 items: '='
             },
-            controller: function ($scope, $element, $attrs) {
-                $scope.setData = function (data) {
-                    this.chart.series[0].setData(data, true);
-                };
-            },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
             link: function (scope, element, attrs) {
                 scope.id = attrs["items"];
@@ -79,6 +74,7 @@ app.controller('DemoController',
                         pie: {
                             allowPointSelect: false,
                             dataLabels: {
+                                distance: 1,
                                 // prevent mismatch between slice color and connector color when
                                 // slice color changes
                                 connectorColor: '#000000',
