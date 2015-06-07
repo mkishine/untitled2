@@ -1,11 +1,22 @@
 "use strict";
-angular.module('myApp', [])
+angular.module('myApp', ['ui-rangeSlider'])
     .controller("MyCtrl", function ($scope, $http) {
+
+
         var promise = $http.get("data.json");
         promise.success(function (data) {
             // display first 100 points
             // data.splice(-900,900);
             $scope.data = data;
+            var maxReqTime = 0;
+            data.forEach(function(p){
+                maxReqTime = Math.max(maxReqTime, p.req_time*100);
+            });
+            $scope.demo1 = {
+                min: 20,
+                max: 80,
+                maxReqTime: maxReqTime
+            };
             function counter(key, what, xMin, xMax) {
                 var count = {};
                 data.forEach(function (element) {
@@ -196,6 +207,7 @@ angular.module('myApp', [])
                             allowPointSelect: true,
                             cursor: 'pointer',
                             dataLabels: {
+                                distance: 1,
                                 // prevent mismatch between slice color and connector color when
                                 // slice color changes
                                 connectorColor: '#000000',
@@ -226,32 +238,100 @@ angular.module('myApp', [])
             }
         }
     })
+    .directive('hcExecTimesPie', function () {
+        return {
+            restrict: 'EC',
+            //scope: {
+            //    items: '='
+            //},
+            template: '<div id="container" style="margin: 0 auto">not working</div>',
+            link: function (scope, element, attrs) {
+                scope.id = attrs["items"];
+                element.attr("id", scope.id);
+                var title = attrs["title"] || "";
+                scope.chart = new Highcharts.Chart({
+                    credits: {
+                        enabled: false
+                    },
+                    chart: {
+                        renderTo: element.attr("id"),
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false
+                    },
+                    title: {
+                        text: title,
+                        style: {fontSize: "14px"},
+                    },
+                    tooltip: {
+                        pointFormat: '<b>{point.percentage:.1f}%</b>',
+                        percentageDecimals: 1
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: false,
+                            dataLabels: {
+                                distance: 1,
+                                // prevent mismatch between slice color and connector color when
+                                // slice color changes
+                                connectorColor: '#000000',
+                            }
+                        }
+                    },
+                    series: [{
+                        type: 'pie',
+                        data: [
+                            {name: "low", y: 20, color: "hsl(0,0%,85%)"},
+                            {name: "medium", y: 50, color: "hsl(0,0%,50%)"},
+                            {name: "high", y: 30, color: "hsl(0,0%,35%)"}
+                        ],
+                    }]
+                });
+                //scope.$watch("items", function (data) {
+                //    scope.chart.series[0].setData(data, true);
+                //}, true);
+            }
+        }
+    })
     .directive('hcScatter', function () {
         return {
             require: '^hcCoordinator',
             restrict: 'EC',
             scope: {
-                items: '='
+                items: '=',
+                range: '='
             },
             controller: function ($scope, $element, $attrs) {
-                $scope.notify = function (name, category, hue) {
-                    var highlighting = name ? "Highliting " + category + " " + name : "Removing highlights";
-                    $scope.chart.showLoading(highlighting);
+                $scope.currentName = null;
+                $scope.currentCategory = "";
+                $scope.currentHue = 0;
+                $scope.repaint = function(message){
+                    $scope.chart.showLoading(message);
+                    var min = $scope.range.min/100;
+                    var max = $scope.range.max/100;
                     window.setTimeout(function () {
                         $scope.chart.series[0].data.forEach(function (p) {
-                            var saturation = p[category] == name ? '100%' : '0%';
-                            var lightness = p.req_time < .5 ? "85%" : (p.req_time > 1.5 ? "35%" : "50%");
-                            var pointColor = 'hsl(' + hue + "," + saturation + "," + lightness + ")";
+                            var saturation =
+                                $scope.currentName && (p[$scope.currentCategory] == $scope.currentName) ? '100%' : '0%';
+                            var lightness = p.req_time < min ? "85%" : (p.req_time > max ? "35%" : "50%");
+                            var pointColor = 'hsl(' + $scope.currentHue + "," + saturation + "," + lightness + ")";
                             p.update({
                                 color: pointColor
                             }, false, false)
                         });
                         $scope.chart.redraw();
                         $scope.chart.hideLoading();
-                        var selection = name ? category + " " + name : "none";
+                        var selection = $scope.currentName ? $scope.currentCategory + " " + $scope.currentName : "none";
                         var subtitle = {text: "Selection: " + selection};
                         $scope.chart.setTitle(undefined, subtitle);
                     }, 0);
+                };
+                $scope.notify = function (name, category, hue) {
+                    $scope.currentName = name;
+                    $scope.currentCategory = category;
+                    $scope.currentHue = hue;
+                    var message = name ? "Highliting " + category + " " + name : "Removing highlights";
+                    $scope.repaint(message);
                 };
             },
             template: '<div id="container" style="margin: 0 auto">not working</div>',
@@ -318,12 +398,28 @@ angular.module('myApp', [])
                     var seriesData = scope.chart.series[0].data;
                     if (seriesData.length != 0)
                         return;
+                    var min = scope.range.min/100;
+                    var max = scope.range.max/100;
+                    console.log("watch: min="+min+", max="+max);
                     data.forEach(function (p) {
-                        var l = p.req_time < .5 ? "85%" : (p.req_time > 1.5 ? "35%" : "50%");
+                        var l = p.req_time < min ? "85%" : (p.req_time > max ? "35%" : "50%");
                         p.color = "hsl(0,0%," + l + ")";
                     });
                     scope.chart.series[0].setData(data, true);
                 }, true);
+                scope.repaintTimeoutId = null;
+                scope.$watch("range", function (range, oldRange){
+                    console.log(range, oldRange);
+                    if ( !oldRange )
+                        return;
+                    if ( scope.repaintTimeoutId )
+                        window.clearTimeout(scope.repaintTimeoutId);
+                    scope.repaintTimeoutId = window.setTimeout(function(){
+                        scope.repaint("Updating Timing Highlights");
+                        scope.repaintTimeoutId = null;
+                    },1000);
+
+                },true);
             }
         }
     });

@@ -9,20 +9,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>VARServerUsageMonitor</title>
     <link href="../../../bootstrap.css" rel="stylesheet">
+    <link href="../angular.rangeSlider.css" rel="stylesheet">
     <script src="../jquery-1.9.1.js"></script>
     <script src="../highcharts.js"></script>
     <script src="../highcharts-more.js"></script>
     <script src="../../../angular.js"></script>
+    <script src="../angular.rangeSlider.js"></script>
     <script src="script.js"></script>
 </head>
 <body ng-app="myApp" ng-controller="MyCtrl">
-<div class="hc-coordinator ng-transclude">
+<div class=" container hc-coordinator ng-transclude">
     <div class="row">
-        <div class="hc-scatter" items="data"></div>
+        <div class="col-lg-9">
+            <div class="hc-scatter" items="data" range="demo1"></div>
+        </div>
+        <div class="col-lg-3">
+            <div class="hc-exec-times-pie" items="execTimes" title="Execution Times"></div>
+            <div range-slider min="0" max="demo1.maxReqTime" model-min="demo1.min" model-max="demo1.max"></div>
+        </div>
+
     </div>
     <div class="row">
         <div class="col-lg-3">
-            <div class="hc-pie" items="userCounts" title="User Count" category="user"></div>
+            <div class="hc-pie" items="userCounts" title="User Counts" category="user"></div>
         </div>
         <div class="col-lg-3">
             <div class="hc-pie" items="userTimes" title="User Times" category="user"></div>
