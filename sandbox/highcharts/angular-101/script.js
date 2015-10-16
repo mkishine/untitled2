@@ -1,8 +1,15 @@
 "use strict";
-angular.module('myApp', ['ui-rangeSlider'])
+angular.module('myApp', ['ya.nouislider'])
     .controller("MyCtrl", function ($scope, $http) {
 
-
+        $scope.values = [0, 0];
+        $scope.options = {
+            range: {min: 0, max: 0},
+            orientation: 'vertical',
+            behaviour: 'drag-tap',
+            direction: "rtl",
+            connect: true,
+        };
         var promise = $http.get("data.json");
         promise.success(function (data) {
             // display first 100 points
@@ -12,11 +19,9 @@ angular.module('myApp', ['ui-rangeSlider'])
             data.forEach(function(p){
                 maxReqTime = Math.max(maxReqTime, p.req_time*100);
             });
-            $scope.demo1 = {
-                min: 20,
-                max: 80,
-                maxReqTime: maxReqTime
-            };
+            $scope.options.range.max = maxReqTime;
+            $scope.values = [60, 120];
+
             function counter(key, what, xMin, xMax) {
                 var count = {};
                 data.forEach(function (element) {
@@ -307,8 +312,8 @@ angular.module('myApp', ['ui-rangeSlider'])
                 $scope.currentHue = 0;
                 $scope.repaint = function(message){
                     $scope.chart.showLoading(message);
-                    var min = $scope.range.min/100;
-                    var max = $scope.range.max/100;
+                    var min = $scope.range[0]/100;
+                    var max = $scope.range[1]/100;
                     window.setTimeout(function () {
                         $scope.chart.series[0].data.forEach(function (p) {
                             var saturation =
@@ -398,8 +403,8 @@ angular.module('myApp', ['ui-rangeSlider'])
                     var seriesData = scope.chart.series[0].data;
                     if (seriesData.length != 0)
                         return;
-                    var min = scope.range.min/100;
-                    var max = scope.range.max/100;
+                    var min = scope.range[0]/100;
+                    var max = scope.range[1]/100;
                     console.log("watch: min="+min+", max="+max);
                     data.forEach(function (p) {
                         var l = p.req_time < min ? "85%" : (p.req_time > max ? "35%" : "50%");

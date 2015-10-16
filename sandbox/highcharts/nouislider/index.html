@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>noUiSlider Example</title>
+</head>
+
+<body>
+
+<div class="slider"></div>
+
+<script src="../jquery-1.9.1.js"></script>
+<script src="../jquery.nouislider.all.js"></script>
+<link href="../jquery.nouislider.css" rel="stylesheet">
+<link href="../jquery.nouislider.pips.css" rel="stylesheet">
+
+<script>
+
+    // On document ready, initialize noUiSlider.
+    $(function () {
+
+        $('.slider').noUiSlider({
+            start: [20, 30],
+            range: {
+                'min': 10,
+                'max': 40
+            }
+        });
+        $('.slider').noUiSlider_pips({
+            mode: 'steps',
+            density: 2
+        });
+    });
+
+</script>
+
+</body>
+</html>

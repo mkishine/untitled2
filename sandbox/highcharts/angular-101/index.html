@@ -9,23 +9,28 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>VARServerUsageMonitor</title>
     <link href="../../../bootstrap.css" rel="stylesheet">
-    <link href="../angular.rangeSlider.css" rel="stylesheet">
+    <link href="../jquery.nouislider.css" rel="stylesheet">
+    <link href="../jquery.nouislider.pips.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+
     <script src="../jquery-1.9.1.js"></script>
     <script src="../highcharts.js"></script>
     <script src="../highcharts-more.js"></script>
     <script src="../../../angular.js"></script>
-    <script src="../angular.rangeSlider.js"></script>
+    <script src="../jquery.nouislider.all.js"></script>
+    <script src="../nouislider.js"></script>
     <script src="script.js"></script>
 </head>
 <body ng-app="myApp" ng-controller="MyCtrl">
 <div class=" container hc-coordinator ng-transclude">
     <div class="row">
-        <div class="col-lg-9">
-            <div class="hc-scatter" items="data" range="demo1"></div>
+        <div class="col-lg-11">
+            <div class="hc-scatter" items="data" range="values"></div>
         </div>
-        <div class="col-lg-3">
-            <div class="hc-exec-times-pie" items="execTimes" title="Execution Times"></div>
-            <div range-slider min="0" max="demo1.maxReqTime" model-min="demo1.min" model-max="demo1.max"></div>
+        <div class="col-lg-1">
+            Request<br>Times
+            <div no-ui-slider='options' ng-model='values'
+                 style="height:300px; margin:30px"></div>
         </div>
 
     </div>

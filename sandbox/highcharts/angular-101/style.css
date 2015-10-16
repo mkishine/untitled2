@@ -1,0 +1,9 @@
+.noUi-handle-upper {
+    background: hsl(0,0%,35%);
+}
+.noUi-handle-lower {
+    background: hsl(0,0%,85%);
+}
+.noUi-connect {
+    background: hsl(0,0%,50%);
+}
